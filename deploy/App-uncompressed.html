@@ -135,7 +135,8 @@
     }, 
     _onReleaseSnapShotData : function(store,data,success) {
         var interval = "";
-        var lumenize = window.parent.Rally.data.lookback.Lumenize;
+        var lumenize = Rally.data.lookback.Lumenize;
+        console.log(lumenize)
         var snapShotData = _.map(data,function(d){return d.data});      
         var openValues = ['Submitted','Open'];
         var closedValues = ['Closed','Fixed'];
