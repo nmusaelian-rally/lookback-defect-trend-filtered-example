@@ -3,7 +3,13 @@ Lookback Defect Trend Filtered Example
 
 ## Overview
 
+Data by months, defined in code: `lumenize.Time.MONTH` :
+
 ![](pic.png)
+
+Data by weeks, defined in code: `lumenize.Time.WEEK` :
+
+![](pic1.png)
 
 ## License
 

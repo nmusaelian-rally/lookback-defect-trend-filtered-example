@@ -107,7 +107,8 @@ Ext.define('CustomApp', {
           metrics: metrics,
           summaryMetricsConfig: summaryMetricsConfig,
           deriveFieldsAfterSummary: derivedFieldsAfterSummary,
-          granularity: lumenize.Time.MONTH,
+          //granularity: lumenize.Time.MONTH,
+          granularity: lumenize.Time.WEEK,
           tz: 'America/Denver',
           holidays: holidays,
           workDays: 'Monday,Tuesday,Wednesday,Thursday,Friday'
