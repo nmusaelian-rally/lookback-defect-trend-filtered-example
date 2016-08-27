@@ -2,7 +2,15 @@ Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
     selectedRelease: null,
+    granularity : 'weeks',
+    tickInterval: 2,
+    timezone: 'America/Denver',
     items: [
+    {
+        xtype: 'container',
+        itemId: 'granularityDropDown',
+        columnWidth: 1
+    },
     {
         xtype: 'container',
         itemId: 'releaseDropDown',
@@ -15,6 +23,31 @@ Ext.define('CustomApp', {
     }    
     ],
     launch: function() {
+        var intervals = Ext.create('Ext.data.Store', {
+            fields: ['interval'],
+            data : [
+                {'interval':'days'},
+                {'interval':'weeks'},
+                {'interval':'months'}
+            ]
+        });
+        
+        this.down("#granularityDropDown").add({
+            xtype: 'combo',
+            itemId : 'granularitySelector',
+            fieldLabel: 'Granularity',
+            store: intervals,
+            queryMode: 'local',
+            displayField: 'interval',
+            valueField: 'interval',
+            value: 'weeks',
+            listeners: {
+                    select: this._onGranularitySelect,
+                    ready:  this._onGranularitySelect,
+                    scope: this
+            }
+            
+        });
         this.down("#releaseDropDown").add( {
             xtype: 'rallyreleasecombobox',
             itemId : 'releaseSelector',
@@ -25,6 +58,12 @@ Ext.define('CustomApp', {
             }
         });
     },
+    
+    _onGranularitySelect:function(){  
+        this.granularity = this.down('#granularitySelector').value
+        this._onReleaseSelect();
+    },
+
 
     _onReleaseSelect : function() {       
         var value =  this.down('#releaseSelector').getRecord();
@@ -74,13 +113,14 @@ Ext.define('CustomApp', {
         });        
     }, 
     _onReleaseSnapShotData : function(store,data,success) {
+        var interval = "";
         var lumenize = window.parent.Rally.data.lookback.Lumenize;
         var snapShotData = _.map(data,function(d){return d.data});      
         var openValues = ['Submitted','Open'];
         var closedValues = ['Closed','Fixed'];
 
         var holidays = [
-            {year: 2014, month: 1, day: 1} 
+            {year: 2016, month: 1, day: 1} 
         ];
 
         var metrics = [
@@ -102,14 +142,26 @@ Ext.define('CustomApp', {
             {as: 'HighPriority', f: function(row) { return row["Priority"] === "High"; } }
         ];
         
+        switch(this.granularity) {
+            case "days":
+                interval = lumenize.Time.DAY;
+                this.tickInterval = 7;
+                break;
+            case "weeks":
+                interval = lumenize.Time.WEEK;
+                break;
+            case "months":
+                interval = lumenize.Time.MONTH;
+                break;
+        }
+        
         var config = {
           deriveFieldsOnInput: deriveFieldsOnInput,
           metrics: metrics,
           summaryMetricsConfig: summaryMetricsConfig,
           deriveFieldsAfterSummary: derivedFieldsAfterSummary,
-          //granularity: lumenize.Time.MONTH,
-          granularity: lumenize.Time.WEEK,
-          tz: 'America/Denver',
+          granularity: interval,
+          tz: this.timezone,
           holidays: holidays,
           workDays: 'Monday,Tuesday,Wednesday,Thursday,Friday'
         };
@@ -127,7 +179,7 @@ Ext.define('CustomApp', {
         
     },
     _showChart : function(series) {
-        
+        var that = this;
         var chart = this.down("#chart");
         chart.removeAll();
 
@@ -150,7 +202,7 @@ Ext.define('CustomApp', {
                 text: 'Release Defect Trend',
                 },                        
                 xAxis: {
-                    tickInterval : 1
+                    tickInterval : that.tickInterval
                 },
                 yAxis: {
                     title: {
@@ -166,8 +218,8 @@ Ext.define('CustomApp', {
                     valueSuffix: ' Defects'
                 },
                 legend: {
-                            align: 'center',
-                            verticalAlign: 'bottom'
+                    align: 'center',
+                    verticalAlign: 'bottom'
                 }
             }
         });
