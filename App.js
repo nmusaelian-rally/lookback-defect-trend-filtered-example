@@ -8,13 +8,24 @@ Ext.define('CustomApp', {
     items: [
     {
         xtype: 'container',
-        itemId: 'granularityDropDown',
-        columnWidth: 1
-    },
-    {
-        xtype: 'container',
-        itemId: 'releaseDropDown',
-        columnWidth: 1
+        itemId: 'selections',
+        columnWidth: 2,
+        layout: {
+            type: 'hbox',
+            align: 'middle'
+        },
+        items:[
+            {
+                xtype: 'container',
+                itemId: 'granularityDropDown',
+                columnWidth: 1
+            },
+            {
+                xtype: 'container',
+                itemId: 'releaseDropDown',
+                columnWidth: 1
+            }
+        ]
     },
     {
         xtype: 'container',
@@ -149,9 +160,11 @@ Ext.define('CustomApp', {
                 break;
             case "weeks":
                 interval = lumenize.Time.WEEK;
+                this.tickInterval = 2;
                 break;
             case "months":
                 interval = lumenize.Time.MONTH;
+                this.tickInterval = 1;
                 break;
         }
         
