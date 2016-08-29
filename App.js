@@ -31,7 +31,7 @@ Ext.define('CustomApp', {
         xtype: 'container',
         itemId: 'chart',
         columnWidth: 1
-    }    
+    }
     ],
     launch: function() {
         var intervals = Ext.create('Ext.data.Store', {
@@ -42,7 +42,7 @@ Ext.define('CustomApp', {
                 {'interval':'months'}
             ]
         });
-        
+
         this.down("#granularityDropDown").add({
             xtype: 'combo',
             itemId : 'granularitySelector',
@@ -57,7 +57,7 @@ Ext.define('CustomApp', {
                     ready:  this._onGranularitySelect,
                     scope: this
             }
-            
+
         });
         this.down("#releaseDropDown").add( {
             xtype: 'rallyreleasecombobox',
@@ -69,17 +69,17 @@ Ext.define('CustomApp', {
             }
         });
     },
-    
-    _onGranularitySelect:function(){  
-        this.granularity = this.down('#granularitySelector').value
+
+    _onGranularitySelect:function(){
+        this.granularity = this.down('#granularitySelector').value;
         this._onReleaseSelect();
     },
 
 
-    _onReleaseSelect : function() {       
+    _onReleaseSelect : function() {
         var value =  this.down('#releaseSelector').getRecord();
         this.selectedRelease = value.data;
-        
+
         Ext.create('Rally.data.WsapiDataStore', {
             model: "Release",
             autoLoad : true,
@@ -121,18 +121,18 @@ Ext.define('CustomApp', {
                     value: releaseIds
                 }
             ]
-        });        
-    }, 
+        });
+    },
     _onReleaseSnapShotData : function(store,data,success) {
         var interval = "";
         var lumenize = Rally.data.lookback.Lumenize;
-        console.log(lumenize)
-        var snapShotData = _.map(data,function(d){return d.data});      
+        console.log(lumenize);
+        var snapShotData = _.map(data,function(d){ return d.data; });
         var openValues = ['Submitted','Open'];
         var closedValues = ['Closed','Fixed'];
 
         var holidays = [
-            {year: 2016, month: 1, day: 1} 
+            {year: 2016, month: 1, day: 1}
         ];
 
         var metrics = [
@@ -142,18 +142,18 @@ Ext.define('CustomApp', {
 
         var summaryMetricsConfig = [
         ];
-        
+
         var derivedFieldsAfterSummary = [
-            {   as: 'Cumulative', 
+            {   as: 'Cumulative',
                 f : function (row,index,summaryMetrics, seriesData) {
                     return 0;
                 }
             }
         ];
         var deriveFieldsOnInput = [
-            {as: 'HighPriority', f: function(row) { return row["Priority"] === "High"; } }
+            {as: 'HighPriority', f: function(row) { return row.Priority === "High"; } }
         ];
-        
+
         switch(this.granularity) {
             case "days":
                 interval = lumenize.Time.DAY;
@@ -168,7 +168,7 @@ Ext.define('CustomApp', {
                 this.tickInterval = 1;
                 break;
         }
-        
+
         var config = {
           deriveFieldsOnInput: deriveFieldsOnInput,
           metrics: metrics,
@@ -179,18 +179,18 @@ Ext.define('CustomApp', {
           holidays: holidays,
           workDays: 'Monday,Tuesday,Wednesday,Thursday,Friday'
         };
-        
+
         var startOnISOString = new lumenize.Time(this.selectedRelease.ReleaseStartDate).getISOStringInTZ(config.tz);
         var upToDateISOString = new lumenize.Time(this.selectedRelease.ReleaseDate).getISOStringInTZ(config.tz);
-        
+
         var calculator = new lumenize.TimeSeriesCalculator(config);
         calculator.addSnapshots(snapShotData, startOnISOString, upToDateISOString);
 
         var hcConfig = [{ name: "label" }, { name : "DefectOpenCount" }, { name : "DefectClosedCount"}];
         var hc = lumenize.arrayOfMaps_To_HighChartsSeries(calculator.getResults().seriesData, hcConfig);
-        
+
         this._showChart(hc);
-        
+
     },
     _showChart : function(series) {
         var that = this;
@@ -198,7 +198,7 @@ Ext.define('CustomApp', {
         chart.removeAll();
 
         series[1].data = _.map(series[1].data, function(d) { return _.isNull(d) ? 0 : d; });
-        
+
         var extChart = Ext.create('Rally.ui.chart.Chart', {
             width: 800,
             height: 500,
@@ -214,7 +214,7 @@ Ext.define('CustomApp', {
                 },
                 title: {
                 text: 'Release Defect Trend',
-                },                        
+                },
                 xAxis: {
                     tickInterval : that.tickInterval
                 },
@@ -241,7 +241,7 @@ Ext.define('CustomApp', {
         var p = Ext.get(chart.id);
         var elems = p.query("div.x-mask");
         _.each(elems, function(e) { e.remove(); });
-        var elems = p.query("div.x-mask-msg");
+        elems = p.query("div.x-mask-msg");
         _.each(elems, function(e) { e.remove(); });
-    }            
+    }
 });
